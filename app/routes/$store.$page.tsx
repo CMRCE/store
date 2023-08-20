@@ -1,17 +1,9 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import type { Page, Plan, PlanGroup } from "~/models/page.model";
 import { getPage } from "~/models/page.model";
-
-export const loader = async ({ params }: LoaderArgs) => {
-  invariant(params.store, "params.store is required");
-  invariant(params.page, "params.page is required");
-  const page = await getPage(params.store, params.page);
-  invariant(page, "Page not found");
-  return json(page);
-};
 
 function isPlanGroup(
   page: Page
@@ -22,6 +14,26 @@ function isPlanGroup(
 function isPlan(page: Page): page is Omit<Page, "data"> & { data: Plan } {
   return page.data.type === "plan";
 }
+
+export const loader = async ({ params }: LoaderArgs) => {
+  invariant(params.store, "params.store is required");
+  invariant(params.page, "params.page is required");
+  const page = await getPage(params.store, params.page);
+  invariant(page, "Page not found");
+  return json(page);
+};
+
+export const meta: V2_MetaFunction<typeof loader> = ({ data: page }) => {
+  return [
+    {
+      title: `Buy ${page?.data.name} from ${page?.data.business.name}`,
+    },
+    {
+      name: "description",
+      content: page?.data.description,
+    },
+  ];
+};
 
 export default function StorePage() {
   const page = useLoaderData<typeof loader>();
@@ -48,7 +60,10 @@ export default function StorePage() {
           <>
             <ul className="flex flex-wrap justify-center gap-6 px-6">
               {page.data.plans.map((plan) => (
-                <li key={plan.id} className="w-full md:w-1/3 flex flex-col justify-between bg-white p-3">
+                <li
+                  key={plan.id}
+                  className="w-full md:w-1/3 flex flex-col justify-between bg-white p-3"
+                >
                   <h3 className="text-xl text-center">{plan.name}</h3>
                   <p className="">{plan.description}</p>
                   <h4 className="text-lg text-center">Benefits</h4>
@@ -57,7 +72,9 @@ export default function StorePage() {
                       <li key={index}>{benefit}</li>
                     ))}
                   </ul>
-                  <button className="mt-10 text-sm font-semibold hover:text-opacity-60 hover:bg-gray-80 bg-black border p-2 px-6 rounded-md border-black text-white">Buy Plan +</button>
+                  <button className="mt-10 text-sm font-semibold hover:text-opacity-60 hover:bg-gray-80 bg-black border p-2 px-6 rounded-md border-black text-white">
+                    Buy Plan +
+                  </button>
                 </li>
               ))}
             </ul>
