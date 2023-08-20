@@ -26,22 +26,46 @@ function isPlan(page: Page): page is Omit<Page, "data"> & { data: Plan } {
 export default function StorePage() {
   const page = useLoaderData<typeof loader>();
   return (
-    <>
-      <div className="bg-brand-blue h-10 w-full"></div>
-      <h1 className="text-3xl font-semibold">{page.data.business.name}</h1>
-      <h3 className="text-xl">{page.data.name}</h3>
-      <p>{page.data.description}</p>
-      {isPlanGroup(page) ? (
-        <>
-          <ul>
-            {page.data.plans.map((plan) => (
-              <li key={plan.id}>{plan.name}</li>
-            ))}
-          </ul>
-        </>
-      ) : isPlan(page) ? (
-        <></>
-      ) : null}
-    </>
+    <main className="bg-brand-yellow-light bg-opacity-60 min-h-screen">
+      <div className="bg-brand-blue bg-opacity-80 h-20 md:h-30 w-full flex justify-center mb-12 md:mb-20">
+        <img
+          className="rounded-full translate-y-1/2"
+          src="https://picsum.photos/200"
+          alt={`logo of ${page.data.business.name}`}
+        />
+      </div>
+      <div className="flex justify-center">
+        <div className="px-6 md:w-1/2">
+          <h1 className="text-4xl font-semibold text-center mb-2">
+            {page.data.business.name}
+          </h1>
+          <h2 className="text-2xl text-center mb-2">{page.data.name}</h2>
+          <p className="text-lg">{page.data.description}</p>
+        </div>
+      </div>
+      <div className="py-6">
+        {isPlanGroup(page) ? (
+          <>
+            <ul className="flex flex-wrap justify-center gap-6 px-6">
+              {page.data.plans.map((plan) => (
+                <li key={plan.id} className="w-full md:w-1/3 flex flex-col justify-between bg-white p-3">
+                  <h3 className="text-xl text-center">{plan.name}</h3>
+                  <p className="">{plan.description}</p>
+                  <h4 className="text-lg text-center">Benefits</h4>
+                  <ul className="list-disc pl-5">
+                    {plan.benefits.map((benefit, index) => (
+                      <li key={index}>{benefit}</li>
+                    ))}
+                  </ul>
+                  <button className="mt-10 text-sm font-semibold hover:text-opacity-60 hover:bg-gray-80 bg-black border p-2 px-6 rounded-md border-black text-white">Buy Plan +</button>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : isPlan(page) ? (
+          <></>
+        ) : null}
+      </div>
+    </main>
   );
 }
